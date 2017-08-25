@@ -52,7 +52,7 @@
 (s/def ::s (s/* ::value))
 (s/def ::e ::env)
 (s/def ::c ::insns)
-(s/def ::d (s/* (s/keys :req-un [::s ::e ::c])))
+(s/def ::d (s/* (s/keys :req-un [::c] :opt-un [::s ::e])))
 
 (s/def ::state (s/keys :req-un [::s ::e ::c ::d]))
 
@@ -148,10 +148,14 @@
         (-> state (replace 2 <=) next)
 
         :sel _
-        nil
+        (let [[_ ct cf] insn]
+          (assoc (pop state)
+                 :c (if (false? (first s)) cf ct)
+                 :d (cons {:c c} d)))
 
         :join _
-        nil
+        (let [[{:keys [c]} & d] d]
+          (next (assoc state :c c :d d)))
 
         :ldf _
         nil
