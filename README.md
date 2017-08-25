@@ -1,12 +1,12 @@
-# abstract-machine-collection
+# 抽これ 〜抽象機械これくしょん〜
 
-FIXME: Write a one-line description of your library/project.
+抽これは、抽象機械(abstract machine)を作って学ぶプロジェクトです。
 
-## Overview
+## 概要
 
-FIXME: Write a paragraph about the library/project and highlight its goals.
+FIXME
 
-## License
+## ライセンス
 
 Copyright © 2017 Shogo Ohta
 
