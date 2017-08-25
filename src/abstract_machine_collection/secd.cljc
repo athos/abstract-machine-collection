@@ -34,10 +34,12 @@
         :gte  (s/cat :op #{:gte})
         :lte  (s/cat :op #{:lte})
 
-        :sel  (s/cat :op #{:sel} :ct ::insns :cf ::insns)
+        :sel  (s/cat :op #{:sel}
+                     :ct (s/spec ::insns)
+                     :cf (s/spec ::insns))
         :join (s/cat :op #{:join})
 
-        :ldf  (s/cat :op #{:ldf} :f ::insns)
+        :ldf  (s/cat :op #{:ldf} :f (s/spec ::insns))
         :ap   (s/cat :op #{:ap})
         :rtn  (s/cat :op #{:rtn})
 
