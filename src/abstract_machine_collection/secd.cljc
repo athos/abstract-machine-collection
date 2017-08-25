@@ -166,3 +166,17 @@
         :rap _
         nil
         ))))
+
+(s/fdef run
+  :args (s/cat :code (s/spec ::insns))
+  :ret ::value)
+
+(defn run [code]
+  (loop [state {:s () :e () :c (seq code) :d ()}]
+    (let [ret (step state)]
+      (union/case-of ::ret ret
+        :state _
+        (recur ret)
+
+        :value _
+        ret))))
