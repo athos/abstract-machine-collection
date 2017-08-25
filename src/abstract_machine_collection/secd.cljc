@@ -3,7 +3,13 @@
   (:require [clojure.spec.alpha :as s]
             [lambdaisland.uniontypes :as union]))
 
-(s/def ::value any?)
+(s/def ::value
+  (s/or :nil nil?
+        :int int?
+        :bool boolean?
+        :list (s/keys :req-un [::car ::cdr])
+(s/def ::car ::value)
+(s/def ::cdr ::value)
 (s/def ::env (s/coll-of (s/coll-of ::value :kind vector?)))
 
 (s/fdef locate
@@ -99,8 +105,9 @@
         :nil _
         (-> state (push nil) next)
 
-        :ldc {:keys [x]}
-        (-> state (push x) next)
+        :ldc _
+        (let [[_ x] insn]
+          (-> state (push x) next))
 
         :ld {:keys [i j]}
         (-> state (push (locate e i j)) next)
@@ -112,13 +119,13 @@
         (-> state (replace nil?) next)
 
         :car _
-        (-> state (replace first) next)
+        (-> state (replace :car) next)
 
         :cdr _
-        (-> state (replace second) next)
+        (-> state (replace :cdr) next)
 
         :cons _
-        (-> state (replace 2 vector) next)
+        (-> state (replace 2 #(array-map :car %1 :cdr %2)) next)
 
         :add _
         (-> state (replace 2 +) next)
