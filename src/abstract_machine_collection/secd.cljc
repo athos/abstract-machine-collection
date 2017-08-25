@@ -8,8 +8,10 @@
         :int int?
         :bool boolean?
         :list (s/keys :req-un [::car ::cdr])
+        :fn (s/keys :req-un [::body ::env])))
 (s/def ::car ::value)
 (s/def ::cdr ::value)
+(s/def ::body ::insns)
 (s/def ::env (s/coll-of (s/coll-of ::value :kind vector?)))
 
 (s/fdef locate
@@ -165,13 +167,21 @@
           (next (assoc state :c c :d d)))
 
         :ldf _
-        nil
+        (let [[_ f] insn]
+          (next (push state {:body f :env e})))
 
         :ap _
-        nil
+        (let [[{:keys [body env]} v & s] s]
+          (-> state
+              (assoc :s nil
+                     :e (cons [v] env)
+                     :c body
+                     :d (cons {:s s :e e :c c} d))))
 
         :rtn _
-        nil
+        (let [v (first s)
+              [{:keys [s e c]} & d] d]
+          {:s (cons v s) :e e :c c :d d})
 
         :dum _
         nil
