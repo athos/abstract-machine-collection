@@ -172,11 +172,7 @@
 
         :ap _
         (let [[{:keys [body env]} v & s] s]
-          (-> state
-              (assoc :s nil
-                     :e (cons v env)
-                     :c body
-                     :d (cons {:s s :e e :c c} d))))
+          {:s nil :e (cons v env) :c body :d (cons {:s s :e e :c c} d)})
 
         :rtn _
         (let [v (first s)
