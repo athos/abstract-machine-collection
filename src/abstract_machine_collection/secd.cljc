@@ -191,10 +191,12 @@
           {:s (cons v s) :e e :c c :d d})
 
         :dum _
-        nil
+        (next (update state :e conj (atom nil)))
 
         :rap _
-        nil
+        (let [[{:keys [body]} v & s] s]
+          (reset! (first e) v)
+          {:s nil :e e :c body :d (cons {:s s :e (rest e) :c c} d)})
         ))))
 
 (s/fdef run
