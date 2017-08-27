@@ -14,19 +14,19 @@
 (s/def ::car ::value)
 (s/def ::cdr ::value)
 (s/def ::body ::insns)
-(s/def ::env (s/coll-of (s/coll-of ::value :kind vector?)))
+(s/def ::env (s/coll-of ::value))
 
 (s/fdef locate
-  :args (s/cat :env ::env :i int? :j int?)
+  :args (s/cat :env ::env :i int?)
   :ret ::value)
 
-(defn locate [env i j]
-  (-> env (nth i) (nth j)))
+(defn locate [env i]
+  (-> env (nth i)))
 
 (s/def ::insn
   (s/or :nil  (s/cat :op #{:nil})
         :ldc  (s/cat :op #{:ldc} :x ::value)
-        :ld   (s/cat :op #{:ld} :i int? :j int?)
+        :ld   (s/cat :op #{:ld} :i int?)
 
         :atom (s/cat :op #{:atom})
         :null (s/cat :op #{:null})
@@ -111,8 +111,8 @@
         (let [[_ x] insn]
           (-> state (push x) next))
 
-        :ld {:keys [i j]}
-        (-> state (push (locate e i j)) next)
+        :ld {:keys [i]}
+        (-> state (push (locate e i)) next)
 
         :atom _
         (-> state (replace (complement seq?)) next)
@@ -174,7 +174,7 @@
         (let [[{:keys [body env]} v & s] s]
           (-> state
               (assoc :s nil
-                     :e (cons [v] env)
+                     :e (cons v env)
                      :c body
                      :d (cons {:s s :e e :c c} d))))
 
