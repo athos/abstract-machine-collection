@@ -97,7 +97,7 @@
 (defn- replace
   ([state f] (replace state 1 f))
   ([{:keys [s] :as state} n f]
-   (-> state (pop n) (push (apply f (reverse (take n s)))))))
+   (-> state (pop n) (push (apply f (take n s))))))
 
 (s/def ::ret (s/or :state ::state :value ::value))
 
