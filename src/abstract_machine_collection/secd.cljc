@@ -3,6 +3,8 @@
   (:require [clojure.spec.alpha :as s]
             [lambdaisland.uniontypes :as union]))
 
+(s/def ::insns (s/* ::insn))
+
 (s/def ::value
   (s/or :nil nil?
         :int int?
@@ -55,12 +57,10 @@
         :rap  (s/cat :op #{:rap})
         ))
 
-(s/def ::insns (s/* ::insn))
-
 (s/def ::s (s/* ::value))
 (s/def ::e ::env)
 (s/def ::c ::insns)
-(s/def ::d (s/* (s/keys :req-un [::c] :opt-un [::s ::e])))
+(s/def ::d (s/* (s/keys :req-un [(or ::c (and ::s ::e ::c))])))
 
 (s/def ::state (s/keys :req-un [::s ::e ::c ::d]))
 
