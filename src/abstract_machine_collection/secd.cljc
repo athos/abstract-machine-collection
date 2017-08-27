@@ -3,30 +3,41 @@
   (:require [clojure.spec.alpha :as s]
             [lambdaisland.uniontypes :as union]))
 
+(defn- iatom? [x]
+  #?(:clj (instance? clojure.lang.IAtom x)
+     :cljs (satisfies? IAtom x)))
+
 (s/def ::insns (s/* ::insn))
 
 (s/def ::value
-  (s/or :nil nil?
-        :int int?
+  (s/or :int int?
         :bool boolean?
-        :list (s/keys :req-un [::car ::cdr])
+        :list ::list
         :fn (s/keys :req-un [::body ::env])))
+
+(s/def ::list
+  (s/or :nil nil?
+        :pair (s/keys :req-un [::car ::cdr])))
 (s/def ::car ::value)
 (s/def ::cdr ::value)
+
 (s/def ::body ::insns)
-(s/def ::env (s/coll-of ::value))
+(s/def ::env
+  (s/coll-of (s/or :args ::list :cell iatom?)))
 
 (s/fdef locate
-  :args (s/cat :env ::env :i int?)
+  :args (s/cat :env ::env :i int? :j int?)
   :ret ::value)
 
-(defn locate [env i]
-  (-> env (nth i)))
+(defn locate [env i j]
+  (let [frame (nth env i)
+        frame (if (iatom? frame) @frame frame)]
+    (:car (nth (iterate :cdr frame) j))))
 
 (s/def ::insn
   (s/or :nil  (s/cat :op #{:nil})
         :ldc  (s/cat :op #{:ldc} :x ::value)
-        :ld   (s/cat :op #{:ld} :i int?)
+        :ld   (s/cat :op #{:ld} :i int? :j int?)
 
         :atom (s/cat :op #{:atom})
         :null (s/cat :op #{:null})
@@ -111,8 +122,8 @@
         (let [[_ x] insn]
           (-> state (push x) next))
 
-        :ld {:keys [i]}
-        (-> state (push (locate e i)) next)
+        :ld {:keys [i j]}
+        (-> state (push (locate e i j)) next)
 
         :atom _
         (-> state (replace (complement seq?)) next)
