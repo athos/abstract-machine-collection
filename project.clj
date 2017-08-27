@@ -43,7 +43,6 @@
                                   [orchestra "2017.07.04-1"]
                                   [pinpointer "0.1.0-SNAPSHOT"]]
                    :source-paths ["src" "env"]
-                   :plugins [[cider/cider-nrepl "0.12.0"]]
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
                    :clean-targets ^{:protect false} ["resources/public/js/compiled"
                                                      :target-path]}})
