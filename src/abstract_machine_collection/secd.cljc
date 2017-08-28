@@ -126,7 +126,9 @@
         (-> state (push (locate e i j)) next)
 
         :atom _
-        (-> state (replace (complement seq?)) next)
+        (-> state
+            (replace (fn [x] (or (nil? x) (int? x) (boolean? x))))
+            next)
 
         :null _
         (-> state (replace nil?) next)
@@ -153,7 +155,12 @@
         (-> state (replace 2 quot) next)
 
         :eq _
-        (-> state (replace 2 =) next)
+        (-> state
+            (replace 2 (fn [x y]
+                         (if (and (number? x) (number? y))
+                           (== x y)
+                           (identical? x y))))
+            next)
 
         :gt _
         (-> state (replace 2 >) next)
@@ -175,7 +182,7 @@
 
         :join _
         (let [[{:keys [c]} & d] d]
-          (next (assoc state :c c :d d)))
+          (assoc state :c c :d d))
 
         :ldf _
         (let [[_ f] insn]
