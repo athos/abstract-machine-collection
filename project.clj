@@ -11,8 +11,9 @@
                  [org.clojure/core.async  "0.3.443"]
                  [lambdaisland/uniontypes "0.3.0"]]
 
-  :plugins [[lein-figwheel "0.5.13"]
-            [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]]
+  :plugins [[lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]
+            [lein-eftest "0.3.1"]
+            [lein-figwheel "0.5.13"]]
 
   :source-paths ["src"]
 
@@ -35,7 +36,9 @@
                            :optimizations :advanced
                            :pretty-print false}}]}
 
-  :figwheel {:css-dirs ["resources/public/css"]} 
+  :figwheel {:css-dirs ["resources/public/css"]}
+
+  :eftest {:report eftest.report.pretty/report}
 
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.4"]
                                   [figwheel-sidecar "0.5.13"]
