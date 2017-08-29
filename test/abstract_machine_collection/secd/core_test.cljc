@@ -1,5 +1,5 @@
-(ns abstract-machine-collection.secd-test
-  (:require [abstract-machine-collection.secd :as secd]
+(ns abstract-machine-collection.secd.core-test
+  (:require [abstract-machine-collection.secd.core :as secd]
             [clojure.test :refer [deftest is are use-fixtures]]
             [orchestra.spec.test :as st]))
 

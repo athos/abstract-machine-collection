@@ -1,4 +1,4 @@
-(ns abstract-machine-collection.secd
+(ns abstract-machine-collection.secd.core
   (:refer-clojure :exclude [push pop replace])
   (:require [clojure.spec.alpha :as s]
             [lambdaisland.uniontypes :as union]))
