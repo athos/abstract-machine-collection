@@ -124,3 +124,50 @@
       :c ([:rtn])
       :d ({:s (43) :e ({:car 43 :cdr nil}) :c ([:null])})}
     '{:s (42 43) :e ({:car 43 :cdr nil}) :c ([:null]) :d nil}))
+
+(deftest run-test
+  (is (= 3628800
+         (secd/run [[:dum]
+                    [:nil]
+                    [:ldf
+                     [[:ld 0 0] [:ldc 0] [:eq] ; (= x 0)
+                      [:sel
+                       [[:ldc 1] [:join]]
+                       [[:ld 0 0]
+                        [:nil]
+                        [:ldc 1] [:ld 0 0] [:sub] ; (- x 1)
+                        [:cons]
+                        [:ld 1 0] [:ap] ; (fib (- x 1))
+                        [:mul]
+                        [:join]]]
+                      [:rtn]]]
+                    [:cons]
+                    [:ldf
+                     [[:nil] [:ldc 10] [:cons] [:ld 0 0] [:ap] ; (fib 10)
+                      [:rtn]]]
+                    [:rap]])))
+
+  (is (= {:car 3 :cdr {:car 2 :cdr {:car 1 :cdr nil}}}
+         (secd/run [[:dum]
+                    [:nil]
+                    [:ldf
+                     [[:ld 0 0] [:null] ; (null xs)
+                      [:sel
+                       [[:ld 0 1] [:join]]
+                       [[:nil]
+                        [:ld 0 1] [:ld 0 0] [:car] [:cons]
+                        [:cons]
+                        [:ld 0 0] [:cdr]
+                        [:cons]
+                        [:ld 1 0] [:ap] ; (reverse (cdr xs) (cons (car xs) acc))
+                        [:join]]]
+                      [:rtn]]]
+                    [:cons]
+                    [:ldf
+                     [[:nil]
+                      [:nil] [:cons]
+                      [:ldc {:car 1 :cdr {:car 2 :cdr {:car 3 :cdr nil}}}]
+                      [:cons]
+                      [:ld 0 0] [:ap] ; (reverse '(1 2 3) nil)
+                      [:rtn]]]
+                    [:rap]]))))
