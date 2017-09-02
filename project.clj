@@ -8,8 +8,8 @@
 
   :dependencies [[org.clojure/clojure "1.9.0-alpha17"]
                  [org.clojure/clojurescript "1.9.908"]
-                 [org.clojure/core.async  "0.3.443"]
-                 [lambdaisland/uniontypes "0.3.0"]]
+                 [org.clojure/core.async "0.3.443"]
+                 [org.clojure/core.match "0.3.0-alpha5"]]
 
   :plugins [[lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]
             [lein-eftest "0.3.1"]

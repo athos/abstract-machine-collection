@@ -1,7 +1,7 @@
 (ns abstract-machine-collection.secd.core
   (:refer-clojure :exclude [push pop replace])
   (:require [clojure.spec.alpha :as s]
-            [lambdaisland.uniontypes :as union]))
+            [clojure.core.match :refer [match]]))
 
 (defn- iatom? [x]
   #?(:clj (instance? clojure.lang.IAtom x)
@@ -114,47 +114,46 @@
             (update :s conj (first s))
             (assoc :d d))))
     (let [[insn & c] c, next #(assoc % :c c)]
-      (union/case-of ::insn insn
-        :nil _
+      (match insn
+        [:nil]
         (-> state (push nil) next)
 
-        :ldc _
-        (let [[_ x] insn]
-          (-> state (push x) next))
+        [:ldc x]
+        (-> state (push x) next)
 
-        :ld {:keys [i j]}
+        [:ld i j]
         (-> state (push (locate e i j)) next)
 
-        :atom _
+        [:atom]
         (-> state
             (replace (fn [x] (or (nil? x) (int? x) (boolean? x))))
             next)
 
-        :null _
+        [:null]
         (-> state (replace nil?) next)
 
-        :car _
+        [:car]
         (-> state (replace :car) next)
 
-        :cdr _
+        [:cdr]
         (-> state (replace :cdr) next)
 
-        :cons _
+        [:cons]
         (-> state (replace 2 #(array-map :car %1 :cdr %2)) next)
 
-        :add _
+        [:add]
         (-> state (replace 2 +) next)
 
-        :sub _
+        [:sub]
         (-> state (replace 2 -) next)
 
-        :mul _
+        [:mul]
         (-> state (replace 2 *) next)
 
-        :div _
+        [:div]
         (-> state (replace 2 quot) next)
 
-        :eq _
+        [:eq]
         (-> state
             (replace 2 (fn [x y]
                          (if (and (number? x) (number? y))
@@ -162,45 +161,43 @@
                            (identical? x y))))
             next)
 
-        :gt _
+        [:gt]
         (-> state (replace 2 >) next)
 
-        :lt _
+        [:lt]
         (-> state (replace 2 <) next)
 
-        :gte _
+        [:gte]
         (-> state (replace 2 >=) next)
 
-        :lte _
+        [:lte]
         (-> state (replace 2 <=) next)
 
-        :sel _
-        (let [[_ ct cf] insn]
-          (assoc (pop state)
-                 :c (if (false? (first s)) cf ct)
-                 :d (cons {:c c} d)))
+        [:sel ct cf]
+        (assoc (pop state)
+               :c (if (false? (first s)) cf ct)
+               :d (cons {:c c} d))
 
-        :join _
+        [:join]
         (let [[{:keys [c]} & d] d]
           (assoc state :c c :d d))
 
-        :ldf _
-        (let [[_ f] insn]
-          (next (push state {:body f :env e})))
+        [:ldf f]
+        (next (push state {:body f :env e}))
 
-        :ap _
+        [:ap]
         (let [[{:keys [body env]} v & s] s]
           {:s nil :e (cons v env) :c body :d (cons {:s s :e e :c c} d)})
 
-        :rtn _
+        [:rtn]
         (let [v (first s)
               [{:keys [s e c]} & d] d]
           {:s (cons v s) :e e :c c :d d})
 
-        :dum _
+        [:dum]
         (next (update state :e conj (atom nil)))
 
-        :rap _
+        [:rap]
         (let [[{:keys [body]} v & s] s]
           (reset! (first e) v)
           {:s nil :e e :c body :d (cons {:s s :e (rest e) :c c} d)})
@@ -212,10 +209,8 @@
 
 (defn run [code]
   (loop [state {:s () :e () :c (seq code) :d ()}]
-    (let [ret (step state)]
-      (union/case-of ::ret ret
-        :state _
-        (recur ret)
+    (match (step state)
+      ({:s _ :e _ :c _ :d _} :as state')
+      (recur state')
 
-        :value _
-        ret))))
+      ret ret)))
